@@ -6,35 +6,36 @@ import pygame
 
 root = tk.Tk()
 root.title("MP3 Player!")
-root.iconbitmap("Simple MP3 player/icon.ico")
+root.iconbitmap("icon.ico")
 root.geometry("620x325")
+
+songs = {}
+
+def add_song_to_list(song):
+    if song:
+        song_name = song
+        song_name = song_name.split("/")[-1] # get the name of the file only
+        song_name = song_name.replace(".mp3", "")
+        song_list_box.insert(END, song_name)
+        songs[song_name] = song
+
 
 # Add Song Function
 def add_song():
     song = filedialog.askopenfilename(initialdir="C:/Users/YourName/Desktop/MyMusic", title="Choose a Song", filetypes=(("MP3 Files", "*.mp3"),))
-    if song:
-        global song_addres
-        song_addres = song
-        song = song.split("/")[-1] # get the name of the file only
-        song = song.replace(".mp3", "")
-        song_list_box.insert(END, song)
+    add_song_to_list(song)
 
 # Add Many Song Function
 def add_many_songs():
     songs = filedialog.askopenfilename(initialdir="C:/Users/YourName/Desktop/MyMusic", title="Choose Songs", filetypes=(("MP3 Files", "*.mp3"),), multiple=True)
     # Loop Thru Song List And Replace Directory Info & .mp3
     for song in songs:
-        if song:
-            global song_addres
-            song_addres = song
-            song = song.split("/")[-1]
-            song = song.replace(".mp3", "")
-            song_list_box.insert(END, song)
+        add_song_to_list(song)
 
 # Play Selected Song
 def play():
     song = song_list_box.get(ACTIVE)
-    pygame.mixer.music.load(song_addres)
+    pygame.mixer.music.load(songs[song])
     pygame.mixer.music.play(loops=0)
 
 
@@ -63,19 +64,19 @@ song_list_box.pack(pady=20)
 pygame.mixer.init()
 
 # Defining Buttons Player Controls
-back_button_image =    Image.open("Simple MP3 player/Button images/back_button.png").resize((100, 100), Image.ANTIALIAS)
+back_button_image =    Image.open("Button images/back_button.png").resize((100, 100), Image.ANTIALIAS)
 back_button_photo =    ImageTk.PhotoImage(back_button_image)
 
-forward_button_image = Image.open("Simple MP3 player/Button images/forward_button.png").resize((100, 100), Image.ANTIALIAS)
+forward_button_image = Image.open("Button images/forward_button.png").resize((100, 100), Image.ANTIALIAS)
 forward_button_photo = ImageTk.PhotoImage(forward_button_image)
 
-play_button_image =    Image.open("Simple MP3 player/Button images/play_button.png").resize((100, 100), Image.ANTIALIAS)
+play_button_image =    Image.open("Button images/play_button.png").resize((100, 100), Image.ANTIALIAS)
 play_button_photo =    ImageTk.PhotoImage(play_button_image)
 
-pause_button_image =   Image.open("Simple MP3 player/Button images/pause_button.png").resize((100, 100), Image.ANTIALIAS)
+pause_button_image =   Image.open("Button images/pause_button.png").resize((100, 100), Image.ANTIALIAS)
 pause_button_photo =   ImageTk.PhotoImage(pause_button_image)
 
-stop_button_image =   Image.open("Simple MP3 player/Button images/stop_button.png").resize((100, 100), Image.ANTIALIAS)
+stop_button_image =   Image.open("Button images/stop_button.png").resize((100, 100), Image.ANTIALIAS)
 stop_button_photo =   ImageTk.PhotoImage(stop_button_image)
 
 # Player Control Button Images Frame

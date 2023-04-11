@@ -2,12 +2,14 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import *
 from PIL import Image, ImageTk
+from mutagen.mp3 import MP3
 import pygame
+import time
 
 root = tk.Tk()
 root.title("MP3 Player!")
 root.iconbitmap("Simple MP3 player/icon.ico")
-root.geometry("620x325")
+root.geometry("620x360")
 
 songs = {}
 
@@ -19,6 +21,22 @@ def add_song_to_list(song):
         song_list_box.insert(END, song_name)
         songs[song_name] = song
 
+
+# Song Lenght (Time)
+def song_lenght():
+    current_time = pygame.mixer.music.get_pos() / 1000
+    converted_time = time.strftime("%H:%M:%S", time.gmtime(current_time))
+
+    # Get Song Lenght wight Mutagen.mp3
+    # Get Current Song
+    song = song_list_box.get(ACTIVE)
+    song = songs[song]
+    song_mutagen = MP3(song)
+    song_lenght_mutagen = song_mutagen.info.length
+    converted_song_lenght = time.strftime("%H:%M:%S", time.gmtime(song_lenght_mutagen))
+
+    status_bar.config(text=f"Time: {converted_time}/{converted_song_lenght}  ")
+    status_bar.after(1000, song_lenght)
 
 # Add Song Function
 def add_song():
@@ -48,11 +66,15 @@ def play():
     song = song_list_box.get(ACTIVE)
     pygame.mixer.music.load(songs[song])
     pygame.mixer.music.play(loops=0)
+    # Calling Song Lenght (Time)
+    song_lenght()
 
 # Stop Playing Current Song
 def stop():
     pygame.mixer.music.stop()
     song_list_box.select_clear(ACTIVE)
+    # Remove Song Lenght Text
+    status_bar.config(text="")
 
 # Pause & Unpase Current Song
 paused = False
@@ -116,8 +138,8 @@ play_button_photo =    ImageTk.PhotoImage(play_button_image)
 pause_button_image =   Image.open("Simple MP3 player/Button images/pause_button.png").resize((100, 100), Image.ANTIALIAS)
 pause_button_photo =   ImageTk.PhotoImage(pause_button_image)
 
-stop_button_image =   Image.open("Simple MP3 player/Button images/stop_button.png").resize((100, 100), Image.ANTIALIAS)
-stop_button_photo =   ImageTk.PhotoImage(stop_button_image)
+stop_button_image =    Image.open("Simple MP3 player/Button images/stop_button.png").resize((100, 100), Image.ANTIALIAS)
+stop_button_photo =    ImageTk.PhotoImage(stop_button_image)
 
 # Player Control Button Images Frame
 controls_frame = Frame(root)
@@ -151,6 +173,17 @@ remove_song_menu = Menu(my_menu)
 my_menu.add_cascade(label="Remove Song", menu=remove_song_menu)
 remove_song_menu.add_command(label="Remove Selected Playing Song From Playlist", command=remove_song)
 remove_song_menu.add_command(label="Remove All Songs From Playlist", command=remove_all_songs)
+
+# Create Status Bar
+status_bar = Label(root, text="", border=1, relief=GROOVE, anchor=E)
+status_bar.pack(fill=X, side=BOTTOM, ipady=2)
+
+
+
+
+
+
+
 
 
 root.mainloop()

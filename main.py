@@ -1,3 +1,4 @@
+import tkinter.ttk as ttk
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import *
@@ -9,7 +10,7 @@ import time
 root = tk.Tk()
 root.title("MP3 Player!")
 root.iconbitmap("Simple MP3 player/icon.ico")
-root.geometry("620x360")
+root.geometry("620x500")
 
 songs = {}
 
@@ -25,6 +26,9 @@ def add_song_to_list(song):
 # Song Lenght (Time)
 def song_lenght():
     current_time = pygame.mixer.music.get_pos() / 1000
+    # Get Data Lable
+    slider_lable.config(text=f'Slider: {int(music_slider.get())} and Song Position: {int(current_time)}')
+
     converted_time = time.strftime("%H:%M:%S", time.gmtime(current_time))
 
     # Get Song Lenght wight Mutagen.mp3
@@ -32,10 +36,31 @@ def song_lenght():
     song = song_list_box.get(ACTIVE)
     song = songs[song]
     song_mutagen = MP3(song)
+    global song_lenght_mutagen
     song_lenght_mutagen = song_mutagen.info.length
     converted_song_lenght = time.strftime("%H:%M:%S", time.gmtime(song_lenght_mutagen))
 
-    status_bar.config(text=f"Time: {converted_time}/{converted_song_lenght}  ")
+    current_time += 1
+    if int(music_slider.get()) == int(song_lenght_mutagen):
+        status_bar.config(text=f"Time: {converted_song_lenght}/{converted_song_lenght}  ")
+    elif int(music_slider.get()) == int(current_time):
+        # Slider hasn't been moved
+        # Update Slider
+        slider_lenght = int(song_lenght_mutagen)
+        music_slider.config(to=slider_lenght, value=current_time)
+    else:
+        # Slider has been moved
+        # Update Slider
+        slider_lenght = int(song_lenght_mutagen)
+        music_slider.config(to=slider_lenght, value=music_slider.get())
+
+        converted_song_lenght = time.strftime("%H:%M:%S", time.gmtime(int(music_slider.get())))
+        status_bar.config(text=f"Time: {converted_time}/{converted_song_lenght}  ")
+
+        passing_time = int(music_slider.get()) + 1
+        music_slider.configure(value=passing_time)
+
+    # Update Time
     status_bar.after(1000, song_lenght)
 
 # Add Song Function
@@ -117,6 +142,10 @@ def back():
     song_list_box.activate(previous_one)
     song_list_box.select_set(previous_one, last=None)
 
+# Slider Function
+def slide(x):
+    slider_lable.config(text=f'{int(music_slider.get())} of {int(song_lenght_mutagen)}')
+
 
 # Create Playlist
 song_list_box = tk.Listbox(root, background="black", foreground="white", selectbackground="gray", selectforeground="cyan", width=60)
@@ -141,9 +170,21 @@ pause_button_photo =   ImageTk.PhotoImage(pause_button_image)
 stop_button_image =    Image.open("Simple MP3 player/Button images/stop_button.png").resize((100, 100), Image.ANTIALIAS)
 stop_button_photo =    ImageTk.PhotoImage(stop_button_image)
 
+# Create a frame for the slider and buttons
+slider_frame = tk.Frame(root)
+slider_frame.pack(pady=10)
+
+# Create the slider
+music_slider = ttk.Scale(slider_frame, from_=0, to=100, orient=HORIZONTAL, value=0, length=400, command=slide)
+music_slider.grid(row=0, column=0, pady=5)
+
+# Create the slider label
+slider_lable = tk.Label(slider_frame, text='0')
+slider_lable.grid(row=1, column=0)
+
 # Player Control Button Images Frame
 controls_frame = Frame(root)
-controls_frame.pack()
+controls_frame.pack(pady=10)
 
 # Player Control Button Images
 back_button =    Button(controls_frame, image=back_button_photo,    borderwidth=0, width=100, height=100, command=back)
@@ -177,11 +218,6 @@ remove_song_menu.add_command(label="Remove All Songs From Playlist", command=rem
 # Create Status Bar
 status_bar = Label(root, text="", border=1, relief=GROOVE, anchor=E)
 status_bar.pack(fill=X, side=BOTTOM, ipady=2)
-
-
-
-
-
 
 
 
